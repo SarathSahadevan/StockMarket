@@ -9,6 +9,9 @@ import datetime
 import numpy as np
 import requests
 from bs4 import BeautifulSoup
+from mpl_finance import candlestick_ohlc
+# !pip install mpl_finance
+import matplotlib.dates as mdates
 
 def find_best_match(input_string, string_list):
     best_match, score = process.extractOne(input_string, string_list)
@@ -24,6 +27,8 @@ def get_historical_stock_data_nse(ticker, start_date, end_date):
     try:
         ticker_nse = f"{ticker}.NS"
         data = yf.download(ticker_nse, start=start_date, end=end_date)
+        st.write(f"**{ticker}**")
+        st.markdown(f"** {ticker}**", unsafe_allow_html=True)
 
         st.write("Historical Data:")
         st.write(data.tail())
@@ -209,7 +214,6 @@ def display_table(table):
     st.markdown(df.to_html(classes='freeze-table', escape=False, index=False), unsafe_allow_html=True)
 
 
-
 def main():
     st.title("Stock Analysis App")
 
@@ -222,17 +226,45 @@ def main():
     historical_data_nse = get_historical_stock_data_nse(best_match, start_date_nse, end_date_nse)
 
     if historical_data_nse is not None:
+        # Display historical data
+        st.write("Historical Data:")
+        st.write(historical_data_nse.tail())
+        candleData = historical_data_nse.reset_index()
+
+        # Convert "Date" column to datetime
+        candleData['Date'] = pd.to_datetime(candleData['Date'])
+
+        # Prepare data for Prophet
         df_prophet = prepare_data_for_prophet(historical_data_nse)
 
+        # Fit Prophet model
         model = fit_prophet_model(df_prophet)
 
+        # Create future dates for prediction
         future = create_future_dates(model, start_date_nse, periods=40)
 
+        # Make predictions and plot using Prophet
         make_predictions_and_plot(model, future)
 
-        crawl_screener(f"https://www.screener.in/company/{best_match}/")
+        # Display candlestick chart
+        st.write("Candlestick Chart:")
+        fig, ax = plt.subplots()
 
+        # Convert dates to a numeric format
+        candleData = candleData[['Date', 'Open', 'High', 'Low', 'Close']].copy().iloc[:-30,:]
+        candleData['Date'] = mdates.date2num(candleData['Date'])
+
+        # Use the converted data for candlestick chart
+        candlestick_ohlc(ax, candleData.values, width=0.6, colorup='green', colordown='red')
+        ax.xaxis_date()
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        plt.xlabel('Date')
+        plt.ylabel('Price')
+        plt.title('Candlestick Chart')
+        st.pyplot(fig)
+
+        # Crawl screener data
+        crawl_screener(f"https://www.screener.in/company/{best_match}/")
 if __name__ == "__main__":
     lookup = list(pd.read_excel("lookup.xlsx")["Symbol"])
-
     main()
