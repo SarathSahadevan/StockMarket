@@ -1,6 +1,4 @@
 fuzzywuzzy==0.18.0
-humanloop==0.5.14
-ipykernel==6.21.3
 itsdangerous==2.1.2
 langchain==0.0.320
 openpyxl==3.1.2
