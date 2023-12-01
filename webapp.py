@@ -9,7 +9,7 @@ import datetime
 import numpy as np
 import requests
 from bs4 import BeautifulSoup
-from mpl_finance import candlestick_ohlc
+# from mpl_finance import candlestick_ohlc
 # !pip install mpl_finance
 import matplotlib.dates as mdates
 
@@ -247,21 +247,21 @@ def main():
         make_predictions_and_plot(model, future)
 
         # Display candlestick chart
-        st.write("Candlestick Chart:")
-        fig, ax = plt.subplots()
+        # st.write("Candlestick Chart:")
+        # fig, ax = plt.subplots()
 
-        # Convert dates to a numeric format
-        candleData = candleData[['Date', 'Open', 'High', 'Low', 'Close']].copy().iloc[:-30,:]
-        candleData['Date'] = mdates.date2num(candleData['Date'])
+        # # Convert dates to a numeric format
+        # candleData = candleData[['Date', 'Open', 'High', 'Low', 'Close']].copy().iloc[:-30,:]
+        # candleData['Date'] = mdates.date2num(candleData['Date'])
 
-        # Use the converted data for candlestick chart
-        candlestick_ohlc(ax, candleData.values, width=0.6, colorup='green', colordown='red')
-        ax.xaxis_date()
-        ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
-        plt.xlabel('Date')
-        plt.ylabel('Price')
-        plt.title('Candlestick Chart')
-        st.pyplot(fig)
+        # # Use the converted data for candlestick chart
+        # candlestick_ohlc(ax, candleData.values, width=0.6, colorup='green', colordown='red')
+        # ax.xaxis_date()
+        # ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y-%m-%d'))
+        # plt.xlabel('Date')
+        # plt.ylabel('Price')
+        # plt.title('Candlestick Chart')
+        # st.pyplot(fig)
 
         # Crawl screener data
         crawl_screener(f"https://www.screener.in/company/{best_match}/")
